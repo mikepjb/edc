@@ -14,7 +14,7 @@ repl:
 	clj -M -m cljs.main --repl-env node
 
 build:
-	clj -M -m cljs.main --target node --output-to edc.js -c edc.core
+	clj -M -m cljs.main --target node --output-to ./target/edc.js -c edc.core
 
 run:
 	node ./target/edc.js

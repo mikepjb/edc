@@ -2,3 +2,5 @@
 
 (defn -main [& _]
   (println "hello world"))
+
+(-main)
