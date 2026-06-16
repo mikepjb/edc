@@ -1,7 +1,7 @@
 .PHONY: dev test
 
 dev:
-	clojure -M:dev:nrepl
+	clojure -M:nrepl:dev
 
 lint:
 	clojure -M:lint --lint src test
