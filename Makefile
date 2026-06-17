@@ -1,7 +1,7 @@
 .PHONY: dev test
 
 dev:
-	clojure -M:nrepl:dev
+	clojure -M:dev
 
 lint:
 	clojure -M:lint --lint src test
@@ -9,12 +9,25 @@ lint:
 test: lint
 	clojure -M:test
 
-# N.B it's better to use an nrepl, this is here just incase you need it.
+# N.B it's better to use an nrepl and piggieback into cljs, this is here just
+# incase you need no nonsense access.
 repl:
 	clj -M -m cljs.main --repl-env node
 
-build:
-	clj -M -m cljs.main --target node --output-to ./target/edc.js -c edc.core
+build-cli:
+	clj -M -m cljs.main --target node --output-to ./target/cli/edc.js -c edc.cli
 
-run:
-	node ./target/edc.js
+build-pwa:
+	clj -M -m cljs.main \
+		--target bundle \
+		--optimizations advanced \
+		--output-to ./target/pwa/edc.js \
+		-c edc.pwa
+
+run-cli:
+	node ./target/cli/edc.js
+
+run-pwa:
+	mkdir -p ./target/pwa
+	cp resources/public/* ./target/pwa
+	python3 -m http.server -d ./target/pwa
