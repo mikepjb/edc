@@ -1,4 +1,4 @@
 (ns edc.core)
 
-(defn -main [& _]
+(defn -main [& args]
   (println "hello world"))

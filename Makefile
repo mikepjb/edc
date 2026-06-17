@@ -15,7 +15,11 @@ repl:
 	clj -M -m cljs.main --repl-env node
 
 build-cli:
-	clj -M -m cljs.main --target node --output-to ./target/cli/edc.js -c edc.cli
+	clj -M -m cljs.main --target node --output-to ./target/cli/edc -c edc.cli
+	chmod +x ./target/cli/edc
+
+install: build-cli
+	cp ./target/cli/edc ~/.local/bin
 
 build-pwa:
 	clj -M -m cljs.main \
