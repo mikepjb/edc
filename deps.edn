@@ -2,6 +2,9 @@
  :deps {org.clojure/clojure {:mvn/version "1.12.4"}
         org.clojure/clojurescript {:mvn/version "1.12.145"}
 
+        ;; CLI args
+        org.clojure/tools.cli {:mvn/version "1.4.256"}
+
         ;; Data
         metosin/malli {:mvn/version "0.20.1"}
 

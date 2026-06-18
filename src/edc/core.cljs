@@ -1,4 +1,3 @@
 (ns edc.core)
 
-(defn -main [& args]
-  (println "hello world"))
+;; should contain stuff to handle the edn file
