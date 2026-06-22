@@ -9,6 +9,9 @@ lint:
 test: lint
 	clojure -M:test
 
+clean:
+	rm -rf ./target
+
 # N.B it's better to use an nrepl and piggieback into cljs, this is here just
 # incase you need no nonsense access.
 repl:
@@ -18,9 +21,6 @@ build-cli:
 	clj -M -m cljs.main --target node --output-to ./target/cli/edc -c edc.cli
 	chmod +x ./target/cli/edc
 
-install: build-cli
-	cp ./target/cli/edc ~/.local/bin
-
 build-pwa:
 	clj -M -m cljs.main \
 		--target bundle \
@@ -29,9 +29,13 @@ build-pwa:
 		-c edc.pwa
 
 run-cli:
-	node ./target/cli/edc.js
+	node ./target/cli/edc
 
 run-pwa:
 	mkdir -p ./target/pwa
 	cp resources/public/* ./target/pwa
 	python3 -m http.server -d ./target/pwa
+
+install: build-cli
+	cp ./target/cli/edc ~/.local/bin
+

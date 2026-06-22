@@ -18,7 +18,15 @@ my computer).
 - After todos in edn format, there's also opportunity to hold notes in markdown
   too which will give me all the context in my notes collection.
 
+## File Format
+
+- `edn` file
+- Contains `tasks`, `lists`, nodes/items can have references (i.e to Youtube)
+
 ## Technical Notes
 
 This project is also an opportunity to get more familiar with building
 clojurescript applications from scratch.
+
+In fireplace, use `:Piggieback (start-cljs)` to connect to a cljs REPL to query
+inside vim.
