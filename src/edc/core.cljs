@@ -1,3 +1,4 @@
 (ns edc.core)
 
-;; should contain stuff to handle the edn file
+(defn add-task [context summary]
+  (update-in context [:tasks :self] conj {:task summary}))

@@ -1,58 +1,75 @@
 (ns edc.cli
   "CLI entrypoint for edc."
   (:require [clojure.tools.cli :refer [parse-opts]]
+            [clojure.edn :as edn]
             [clojure.string :as string]
+            [clojure.pprint :as pp]
             [cljs.nodejs :as nodejs]
             ["fs" :as fs]
             ["os" :as os]
-            ["path" :as path]))
+            ["path" :as path]
+            [edc.core :as core]))
 
 (def cli-options
   [["-c" "--context PATH" "Path to configuration EDN file"
     :validate [#(.endsWith % ".edn") "Must be an .edn file"]]
    ["-v" "--version" "Print version and exit"]])
 
-;; TODO need to resolve ~ to it's fully expanded before passing to readFileSync
+(defn expand-path [file-path]
+  (if (or (.startsWith file-path "~")
+          (.startsWith file-path "$HOME"))
+    (.join path (.homedir os) (.slice file-path 1))
+    file-path))
+
 (defn source-file [context-arg]
-  (let [path (if context-arg
-               context-arg
-               (.. js/process -env -EDC))]
+  (let [file-path (if context-arg
+                    context-arg
+                    (.. js/process -env -EDC))]
     (try
-      (let [content (fs/readFileSync (expand-home path) "utf8")]
+      (let [content (fs/readFileSync (expand-path file-path) "utf8")]
         content)
       (catch :default e
         (js/console.error "could not read file" (.-message e))))))
 
-;; (.. js/process -env -HOME)
+(defn update-file [file-path content]
+  (fs/writeFileSync (expand-path file-path) content))
 
 (defn ^:export -main [& args]
-  (let [{:keys [options arguments errors summary] :as cli-input} (parse-opts args cli-options)]
+  (let [{:keys [options arguments errors summary] :as cli-input} (parse-opts args cli-options)
+        [subcommand & sub-args] arguments]
     (cond
-      ;; 1. Handle errors
-      errors
+      errors ;; Handle errors
       (do
         (println (string/join "\n" errors))
         (js/process.exit 1))
 
-      ;; 2. Handle version flag
+      ;; Handle options --------------------------------------------
       (:version options)
       (do
         (println "edc version 0.1.0")
         (js/process.exit 0))
 
-      ;; 3. Handle context path logic
       (:context options)
-      (let [config-path (:context options)]
-        (println "Loading context from:" config-path)
-        ;; Your logic to read the EDN file goes here
+      (let [config-path (or (:context options)
+                            (.. js/process -env -EDC))
+            config (edn/read-string (source-file config-path))]
+       (println config) 
         )
+
+      ;; Handle args/subcommands
+      (= subcommand "add")
+      (do
+        (let [config-path (or (:context options)
+                              (.. js/process -env -EDC))
+              config (edn/read-string (source-file config-path))]
+          (update-file config-path
+                       (with-out-str (pp/pprint (core/add-task config "new task")))))
+          (println "task added"))
 
       ;; 4. Default case if no valid flags were provided
       :else
-      (do
-        (println "edc: Missing required arguments.")
-        (println summary)
-        (js/process.exit 1)))))
+      (pp/pprint (edn/read-string (source-file nil)))
+      )))
 
 (set! *main-cli-fn* -main)
 (nodejs/enable-util-print!)
